@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Systems & OS — Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --paper:      #F6F1E8;
+      --paper-dark: #EDE7D9;
+      --ink:        #1A1714;
+      --ink-mid:    #6B6560;
+      --ink-faint:  #B8B0A6;
+      --ink-ghost:  #DDD8D0;
+      --red:        #B91C1C;
+      --red-bg:     #FEF2F2;
+      --green:      #15643A;
+      --green-bg:   #F0FDF4;
+      --rule:       #E2DCD2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      /* Paper grain overlay */
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    #root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── TOP CHROME ─── */
+    .chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 52px;
+      border-bottom: 1px solid var(--rule);
+      position: sticky;
+      top: 0;
+      background: var(--paper);
+      z-index: 10;
+    }
+
+    .chrome-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+    }
+
+    .chrome-score {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    .main {
+      flex: 1;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 56px 48px 96px;
+    }
+
+    /* ─── PROGRESS ROW ─── */
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 60px;
+    }
+
+    .progress-counter {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      white-space: nowrap;
+      letter-spacing: 0.06em;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 1px;
+      background: var(--ink-ghost);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--ink);
+      transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── TOPIC LABEL ─── */
+    .topic-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .topic-pip {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .topic-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+    }
+
+    /* ─── QUESTION BLOCK ─── */
+    .question-block {
+      position: relative;
+      margin-bottom: 44px;
+      animation: slideIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .question-num-bg {
+      position: absolute;
+      top: -32px;
+      left: -4px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 130px;
+      line-height: 1;
+      color: var(--ink-ghost);
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .question-text {
+      position: relative;
+      z-index: 1;
+      font-family: 'Instrument Serif', serif;
+      font-size: 27px;
+      line-height: 1.42;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── OPTIONS ─── */
+    .options {
+      border-top: 1px solid var(--rule);
+      margin-bottom: 0;
+    }
+
+    .option {
+      all: unset;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      width: 100%;
+      padding: 17px 4px 17px 10px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    /* Left accent bar */
+    .option::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: transparent;
+      transition: background 0.18s;
+    }
+
+    .option:not([data-revealed]):hover::before { background: var(--ink); }
+    .option:not([data-revealed]):hover { background: rgba(26,23,20,0.03); }
+    .option:not([data-revealed]):hover .opt-key {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    .option[data-state="correct"]::before { background: var(--green); }
+    .option[data-state="wrong"]::before   { background: var(--red); }
+    .option[data-state="correct"] { background: var(--green-bg); }
+    .option[data-state="wrong"]   { background: var(--red-bg); }
+    .option[data-state="dim"] { opacity: 0.4; cursor: default; }
+    .option[data-state="dim"]::before { background: transparent; }
+
+    .opt-key {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border: 1.5px solid var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-faint);
+      transition: all 0.15s;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .option[data-state="correct"] .opt-key {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .option[data-state="wrong"] .opt-key {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .opt-text {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .option[data-state="dim"] .opt-text { color: var(--ink-mid); }
+
+    /* ─── FEEDBACK ─── */
+    .feedback {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.22s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-msg {
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feedback-msg.ok  { color: var(--green); }
+    .feedback-msg.bad { color: var(--red); }
+
+    .btn-next {
+      all: unset;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 12px 28px;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-next:hover { opacity: 0.72; }
+
+    /* ─── RESULTS ─── */
+    .results {
+      flex: 1;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 72px 48px 96px;
+      animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .results-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 28px;
+      padding-bottom: 36px;
+      border-bottom: 2px solid var(--ink);
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .results-score {
+      font-family: 'Instrument Serif', serif;
+      font-size: 104px;
+      line-height: 0.9;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .results-meta {
+      padding-bottom: 6px;
+    }
+
+    .results-denom {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      color: var(--ink-mid);
+      margin-bottom: 10px;
+    }
+
+    .results-grade {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border: 1.5px solid currentColor;
+      padding: 5px 12px;
+      margin-bottom: 10px;
+    }
+
+    .results-grade.distinction { color: var(--green); }
+    .results-grade.credit      { color: #1D4ED8; }
+    .results-grade.pass        { color: #B45309; }
+    .results-grade.fail        { color: var(--red); }
+
+    .results-tagline {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 17px;
+      color: var(--ink-mid);
+    }
+
+    .summary-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      margin-bottom: 16px;
+    }
+
+    .summary-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 52px;
+    }
+
+    .s-dot {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      border: 1.5px solid currentColor;
+    }
+
+    .s-dot.ok  { color: var(--green); background: var(--green-bg); }
+    .s-dot.bad { color: var(--red);   background: var(--red-bg); }
+
+    .btn-restart {
+      all: unset;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 15px 48px;
+      display: inline-block;
+      transition: opacity 0.15s;
+    }
+
+    .btn-restart:hover { opacity: 0.72; }
+
+    @media (max-width: 600px) {
+      .chrome { padding: 0 20px; }
+      .main, .results { padding: 36px 20px 72px; }
+      .question-text { font-size: 21px; }
+      .question-num-bg { font-size: 90px; top: -20px; }
+      .results-score { font-size: 72px; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const questions = [
+    { topic:"HTTP/HTTPS", q:"Which HTTP status code indicates that the requested resource has been permanently moved to a new URL?", options:["200 OK","301 Moved Permanently","404 Not Found","500 Internal Server Error"], answer:1 },
+    { topic:"HTTP/HTTPS", q:"What does HTTPS add on top of HTTP?", options:["Faster data transfer via compression only","Encryption and authentication via TLS/SSL","Additional HTTP methods like PATCH and OPTIONS","Support for persistent connections"], answer:1 },
+    { topic:"HTTP/HTTPS", q:"Which HTTP method is considered idempotent AND safe?", options:["POST","PUT","DELETE","GET"], answer:3 },
+    { topic:"HTTP/HTTPS", q:"In the client-server model, which party initiates the communication?", options:["The server","The client","The DNS resolver","The load balancer"], answer:1 },
+    { topic:"HTTP/HTTPS", q:"What is the default port for HTTPS?", options:["80","8080","443","8443"], answer:2 },
+    { topic:"HTTP/HTTPS", q:"Which HTTP header is used by the client to specify the type of content it can accept in a response?", options:["Content-Type","Accept","Authorization","Cache-Control"], answer:1 },
+    { topic:"Web Servers", q:"Nginx is primarily known for which architectural advantage over traditional Apache?", options:["It uses a multi-process, one-process-per-connection model","It uses an event-driven, non-blocking I/O model that handles many connections efficiently","It natively executes PHP without any modules","It stores all content in memory for faster access"], answer:1 },
+    { topic:"Web Servers", q:"In the context of Node.js as a web server, what is the event loop?", options:["A CPU scheduling algorithm for Node processes","A mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded","A loop that periodically checks for new HTTP connections","A garbage collection cycle"], answer:1 },
+    { topic:"Web Servers", q:"Which of the following best describes a reverse proxy?", options:["A server that forwards client requests to the internet on behalf of the client","A server that sits in front of backend servers and forwards client requests to them","A DNS server that maps domain names to IP addresses","A firewall that blocks outbound traffic"], answer:1 },
+    { topic:"HTML & Web Content", q:"Which HTML element is used to define the primary navigation links of a page according to semantic HTML5?", options:["<div id='nav'>","<menu>","<nav>","<header>"], answer:2 },
+    { topic:"HTML & Web Content", q:"What is the difference between static and dynamic web content?", options:["Static content uses JavaScript; dynamic content does not","Static content is the same for every user; dynamic content is generated per request based on logic or data","Static content is stored in a database; dynamic content is stored in files","Static content uses CSS animations; dynamic content uses server-side scripts"], answer:1 },
+    { topic:"HTML & Web Content", q:"In CSS, what does the 'cascade' in Cascading Style Sheets refer to?", options:["Styles that flow from top to bottom in the HTML document","The waterfall layout algorithm used for positioning elements","The priority order used to determine which CSS rule applies when multiple rules target the same element","The way CSS animations play sequentially"], answer:2 },
+    { topic:"OS Layers", q:"Which layer of the operating system directly manages hardware resources such as CPU and memory?", options:["Shell","Application layer","Kernel","File system"], answer:2 },
+    { topic:"OS Layers", q:"What is a system call?", options:["A function call within a user-space application","A mechanism that allows user-space programs to request services from the operating system kernel","A network request from one computer to another","A scheduled task that runs at fixed intervals"], answer:1 },
+    { topic:"OS Layers", q:"Which of the following is a monolithic kernel characteristic?", options:["All OS services run in separate protected user-space processes","Only the scheduler runs in kernel space; everything else runs in user space","All OS services (drivers, file systems, scheduling) run in the same kernel address space","The kernel is split across multiple machines in a distributed system"], answer:2 },
+    { topic:"File Systems", q:"In a Unix/Linux filesystem, what does the inode store?", options:["The file name and file contents","Only the file's contents in contiguous blocks","Metadata about a file (permissions, owner, timestamps, data block pointers) but NOT the file name","The directory structure and all file names within it"], answer:2 },
+    { topic:"File Systems", q:"What is the Unix philosophy regarding 'everything is a file'?", options:["All programs must be stored as text files","Devices, sockets, pipes, and other I/O resources are exposed as file descriptors and accessed with file I/O operations","The filesystem must be FAT32 formatted","User data and OS data share the same directory"], answer:1 },
+    { topic:"File Systems", q:"Which Unix directory conventionally stores user home directories?", options:["/usr","/home","/var","/etc"], answer:1 },
+    { topic:"Process Management", q:"What distinguishes a process from a thread?", options:["Threads have their own memory address space; processes share one","Processes have their own memory address space; threads within a process share memory","Processes are managed by the CPU; threads are managed by the OS","Threads can only run on a single CPU core; processes can use multiple cores"], answer:1 },
+    { topic:"Process Management", q:"In CPU scheduling, which algorithm can lead to the 'convoy effect' where short processes wait behind a long one?", options:["Round Robin","Shortest Job First (SJF)","First-Come, First-Served (FCFS)","Priority Scheduling with preemption"], answer:2 },
+    { topic:"Process Management", q:"What is a zombie process?", options:["A process consuming 100% CPU without doing useful work","A process that has finished execution but still has an entry in the process table because its parent has not read its exit status","A process that has been paused by the scheduler indefinitely","A malicious process that replicates itself across the system"], answer:1 },
+    { topic:"Process Management", q:"Which CPU scheduling metric measures the total time from process submission to completion?", options:["Burst time","Waiting time","Turnaround time","Response time"], answer:2 },
+    { topic:"Memory Management", q:"What problem does virtual memory solve?", options:["It prevents the CPU from overheating by limiting memory-intensive operations","It allows processes to use more memory than physically available by using disk as an extension of RAM","It encrypts all data stored in RAM for security","It compresses memory to allow more data to fit in RAM"], answer:1 },
+    { topic:"Memory Management", q:"What is a page fault?", options:["A bug in a web page's HTML code","An error that occurs when a process tries to access a page not currently in physical memory","A failure when writing to a disk page","An overflow condition when a memory page is written beyond its boundary"], answer:1 },
+    { topic:"Concurrency & IPC", q:"Which IPC mechanism allows two processes to communicate through a shared kernel buffer in a producer-consumer fashion?", options:["Shared memory","Signal","Pipe","Socket"], answer:2 },
+    { topic:"Concurrency & IPC", q:"What is a race condition?", options:["A CPU performance benchmark test","A situation where two processes compete for CPU time and the slower one is starved","A bug where the outcome of a program depends on the unpredictable timing of events such as thread scheduling","A network condition where packets arrive out of order"], answer:2 },
+    { topic:"Concurrency & IPC", q:"A mutex (mutual exclusion lock) is used to:", options:["Terminate a thread that has been running too long","Ensure that only one thread at a time can execute a critical section","Share memory between processes on different machines","Schedule threads in round-robin order"], answer:1 },
+    { topic:"Security", q:"What does the 'Integrity' property of the CIA triad guarantee?", options:["Only authorized users can access the system","The system is available and operational when needed","Data has not been tampered with or altered by unauthorized parties","All network traffic is encrypted end-to-end"], answer:2 },
+    { topic:"Security", q:"A Denial-of-Service (DoS) attack primarily threatens which component of the CIA triad?", options:["Confidentiality","Integrity","Availability","Authentication"], answer:2 },
+    { topic:"Security", q:"Which security practice involves running a service with the minimum permissions required for it to function?", options:["Defense in depth","Principle of least privilege","Security through obscurity","Zero-trust networking"], answer:1 },
+    { topic:"CLI & Scripting", q:"In a Unix shell, what does the pipe operator '|' do?", options:["Redirects stdout to a file, overwriting it","Appends stdout to a file","Passes the stdout of one command as stdin to the next command","Runs two commands simultaneously in parallel"], answer:2 },
+    { topic:"CLI & Scripting", q:"What does the chmod 755 command set on a Unix file?", options:["Read/write/execute for owner; read/execute for group and others","Read/write for owner; read for group and others","Full permissions for everyone","No permissions for anyone"], answer:0 },
+    { topic:"Deadlocks", q:"Which of the four Coffman conditions is NOT required for a deadlock to occur?", options:["Mutual exclusion","Hold and wait","Preemption (resources can be forcibly taken)","Circular wait"], answer:2 },
+    { topic:"Deadlocks", q:"The Banker's Algorithm is used to:", options:["Recover from a deadlock by killing processes","Detect existing deadlocks in the system","Avoid deadlocks by simulating resource allocation before granting requests","Prevent deadlocks by enforcing strict resource ordering"], answer:2 },
+    { topic:"Resource Management", q:"Thrashing in an operating system occurs when:", options:["The CPU is overclocked beyond its rated speed","The system spends more time swapping pages in and out of memory than executing processes","Too many processes compete for the same I/O device","The network interface is saturated with traffic"], answer:1 },
+    { topic:"Resource Management", q:"What is the purpose of a semaphore in operating systems?", options:["To provide hardware-level encryption for memory regions","To control access to a shared resource by multiple processes using a counter-based signaling mechanism","To assign priority levels to processes for CPU scheduling","To manage disk I/O queues with elevator algorithms"], answer:1 },
+  ];
+
+  const TOPIC_PIPS = {
+    "HTTP/HTTPS":         "#1D4ED8",
+    "Web Servers":        "#7C3AED",
+    "HTML & Web Content": "#0891B2",
+    "OS Layers":          "#B45309",
+    "File Systems":       "#B91C1C",
+    "Process Management": "#6D28D9",
+    "Memory Management":  "#BE185D",
+    "Concurrency & IPC":  "#065F46",
+    "Security":           "#9A3412",
+    "CLI & Scripting":    "#155E75",
+    "Deadlocks":          "#881337",
+    "Resource Management":"#3F6212",
+  };
+
+  const GRADE_INFO = {
+    90: { label: "Distinction", cls: "distinction", line: "Exceptional work." },
+    75: { label: "Credit",      cls: "credit",      line: "Solid understanding." },
+    60: { label: "Pass",        cls: "pass",         line: "Good effort — review the misses." },
+     0: { label: "Needs Work",  cls: "fail",         line: "Hit the notes and try again." },
+  };
+
+  function getGrade(pct) {
+    if (pct >= 90) return GRADE_INFO[90];
+    if (pct >= 75) return GRADE_INFO[75];
+    if (pct >= 60) return GRADE_INFO[60];
+    return GRADE_INFO[0];
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function App() {
+    const [deck,     setDeck]     = React.useState(() => shuffle(questions));
+    const [current,  setCurrent]  = React.useState(0);
+    const [selected, setSelected] = React.useState(null);
+    const [score,    setScore]    = React.useState(0);
+    const [done,     setDone]     = React.useState(false);
+    const [answers,  setAnswers]  = React.useState([]);
+    const [key,      setKey]      = React.useState(0); // force re-mount for animation
+
+    const q     = deck[current];
+    const total = deck.length;
+    const pct   = Math.round((score / total) * 100);
+    const pip   = TOPIC_PIPS[q?.topic] || "#555";
+
+    function handleSelect(idx) {
+      if (selected !== null) return;
+      const correct = idx === q.answer;
+      setSelected(idx);
+      if (correct) setScore(s => s + 1);
+      setAnswers(a => [...a, { correct }]);
+    }
+
+    function handleNext() {
+      if (current + 1 >= total) { setDone(true); return; }
+      setCurrent(c => c + 1);
+      setSelected(null);
+      setKey(k => k + 1);
+    }
+
+    function handleRestart() {
+      setDeck(shuffle(questions));
+      setCurrent(0);
+      setSelected(null);
+      setScore(0);
+      setDone(false);
+      setAnswers([]);
+      setKey(k => k + 1);
+    }
+
+    const numStr = String(current + 1).padStart(2, '0');
+
+    /* ── Results screen ── */
+    if (done) {
+      const grade = getGrade(pct);
+      return (
+        <>
+          <div className="chrome">
+            <span className="chrome-title">Web Systems &amp; OS — Quiz</span>
+            <span className="chrome-score">Results</span>
+          </div>
+          <div className="results">
+            <div className="results-header">
+              <div className="results-score">{score}</div>
+              <div className="results-meta">
+                <div className="results-denom">/ {total} correct</div>
+                <div className={`results-grade ${grade.cls}`}>{grade.label} — {pct}%</div>
+                <div className="results-tagline">{grade.line}</div>
+              </div>
+            </div>
+
+            <p className="summary-label">Question breakdown</p>
+            <div className="summary-dots">
+              {answers.map((a, i) => (
+                <div key={i} className={`s-dot ${a.correct ? 'ok' : 'bad'}`}>
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+
+            <button className="btn-restart" onClick={handleRestart}>
+              Try Again
+            </button>
+          </div>
+        </>
+      );
+    }
+
+    /* ── Quiz screen ── */
+    return (
+      <>
+        <div className="chrome">
+          <span className="chrome-title">Web Systems &amp; OS — Quiz</span>
+          <span className="chrome-score">{score} / {current}</span>
+        </div>
+
+        <div className="main">
+          {/* Progress */}
+          <div className="progress-row">
+            <span className="progress-counter">{numStr} / {total}</span>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${(current / total) * 100}%` }} />
+            </div>
+          </div>
+
+          <div key={key} className="question-block">
+            {/* Topic */}
+            <div className="topic-row">
+              <div className="topic-pip" style={{ background: pip }} />
+              <span className="topic-label">{q.topic}</span>
+            </div>
+
+            {/* Ghost number */}
+            <div className="question-num-bg" aria-hidden="true">{numStr}</div>
+
+            {/* Question text */}
+            <p className="question-text">{q.q}</p>
+          </div>
+
+          {/* Options */}
+          <div className="options">
+            {q.options.map((opt, idx) => {
+              const revealed = selected !== null;
+              const isCorrect = idx === q.answer;
+              const isSelected = selected === idx;
+
+              let state = undefined;
+              if (revealed) {
+                if (isCorrect)              state = "correct";
+                else if (isSelected)        state = "wrong";
+                else                        state = "dim";
+              }
+
+              return (
+                <button
+                  key={idx}
+                  className="option"
+                  data-state={state}
+                  data-revealed={revealed || undefined}
+                  onClick={() => handleSelect(idx)}
+                  disabled={revealed}
+                >
+                  <span className="opt-key">
+                    {state === "correct" ? "✓" : state === "wrong" ? "✗" : String.fromCharCode(65 + idx)}
+                  </span>
+                  <span className="opt-text">{opt}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback */}
+          {selected !== null && (
+            <div className="feedback">
+              <span className={`feedback-msg ${selected === q.answer ? 'ok' : 'bad'}`}>
+                {selected === q.answer
+                  ? "Correct."
+                  : `Incorrect — the answer is: "${q.options[q.answer]}"`}
+              </span>
+              <button className="btn-next" onClick={handleNext}>
+                {current + 1 >= total ? "See Results →" : "Next →"}
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
