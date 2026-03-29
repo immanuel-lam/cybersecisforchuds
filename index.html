@@ -498,6 +498,17 @@
     return GRADE_INFO[0];
   }
 
+  function shuffleOptions(q) {
+    const indices = [0, 1, 2, 3];
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    const newOptions = indices.map(i => q.options[i]);
+    const newAnswer = indices.indexOf(q.answer);
+    return { ...q, options: newOptions, answer: newAnswer };
+  }
+
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -508,7 +519,7 @@
   }
 
   function App() {
-    const [deck,     setDeck]     = React.useState(() => shuffle(questions));
+    const [deck,     setDeck]     = React.useState(() => shuffle(questions).map(shuffleOptions));
     const [current,  setCurrent]  = React.useState(0);
     const [selected, setSelected] = React.useState(null);
     const [score,    setScore]    = React.useState(0);
@@ -537,7 +548,7 @@
     }
 
     function handleRestart() {
-      setDeck(shuffle(questions));
+      setDeck(shuffle(questions).map(shuffleOptions));
       setCurrent(0);
       setSelected(null);
       setScore(0);
