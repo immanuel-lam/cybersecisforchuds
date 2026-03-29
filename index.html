@@ -417,12 +417,133 @@
 
     .btn-restart:hover { opacity: 0.72; }
 
+    /* ─── MODE SELECTION ─── */
+    .mode-screen {
+      flex: 1;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 72px 48px 96px;
+      animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mode-header {
+      margin-bottom: 56px;
+    }
+
+    .mode-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      margin-bottom: 16px;
+    }
+
+    .mode-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 64px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .mode-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--ink-mid);
+      line-height: 1.55;
+      max-width: 480px;
+    }
+
+    .mode-options {
+      border-top: 1px solid var(--rule);
+    }
+
+    .mode-option {
+      all: unset;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      width: 100%;
+      padding: 22px 10px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .mode-option::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: transparent;
+      transition: background 0.18s;
+    }
+
+    .mode-option:hover { background: rgba(26,23,20,0.03); }
+
+    .mode-option--easy:hover::before   { background: var(--green); }
+    .mode-option--medium:hover::before { background: #B45309; }
+    .mode-option--hard:hover::before   { background: var(--red); }
+    .mode-option--all:hover::before    { background: var(--ink); }
+
+    .mode-option-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mode-option-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .mode-option-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink-mid);
+    }
+
+    .mode-option-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+
+    /* ─── RESULTS ACTIONS ─── */
+    .results-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-restart--outline {
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--ink);
+    }
+
+    .btn-restart--outline:hover { background: var(--ink); color: var(--paper); }
+
     @media (max-width: 600px) {
       .chrome { padding: 0 20px; }
-      .main, .results { padding: 36px 20px 72px; }
+      .main, .results, .mode-screen { padding: 36px 20px 72px; }
       .question-text { font-size: 21px; }
       .question-num-bg { font-size: 90px; top: -20px; }
       .results-score { font-size: 72px; }
+      .mode-title { font-size: 44px; }
     }
   </style>
 </head>
@@ -431,42 +552,84 @@
 
 <script type="text/babel">
   const questions = [
-    { topic:"HTTP/HTTPS", q:"Which HTTP status code indicates that the requested resource has been permanently moved to a new URL?", options:["200 OK","301 Moved Permanently","404 Not Found","500 Internal Server Error"], answer:1 },
-    { topic:"HTTP/HTTPS", q:"What does HTTPS add on top of HTTP?", options:["Faster data transfer via compression only","Encryption and authentication via TLS/SSL","Additional HTTP methods like PATCH and OPTIONS","Support for persistent connections"], answer:1 },
-    { topic:"HTTP/HTTPS", q:"Which HTTP method is considered idempotent AND safe?", options:["POST","PUT","DELETE","GET"], answer:3 },
-    { topic:"HTTP/HTTPS", q:"In the client-server model, which party initiates the communication?", options:["The server","The client","The DNS resolver","The load balancer"], answer:1 },
-    { topic:"HTTP/HTTPS", q:"What is the default port for HTTPS?", options:["80","8080","443","8443"], answer:2 },
-    { topic:"HTTP/HTTPS", q:"Which HTTP header is used by the client to specify the type of content it can accept in a response?", options:["Content-Type","Accept","Authorization","Cache-Control"], answer:1 },
-    { topic:"Web Servers", q:"Nginx is primarily known for which architectural advantage over traditional Apache?", options:["It uses a multi-process, one-process-per-connection model","It uses an event-driven, non-blocking I/O model that handles many connections efficiently","It natively executes PHP without any modules","It stores all content in memory for faster access"], answer:1 },
-    { topic:"Web Servers", q:"In the context of Node.js as a web server, what is the event loop?", options:["A CPU scheduling algorithm for Node processes","A mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded","A loop that periodically checks for new HTTP connections","A garbage collection cycle"], answer:1 },
-    { topic:"Web Servers", q:"Which of the following best describes a reverse proxy?", options:["A server that forwards client requests to the internet on behalf of the client","A server that sits in front of backend servers and forwards client requests to them","A DNS server that maps domain names to IP addresses","A firewall that blocks outbound traffic"], answer:1 },
-    { topic:"HTML & Web Content", q:"Which HTML element is used to define the primary navigation links of a page according to semantic HTML5?", options:["<div id='nav'>","<menu>","<nav>","<header>"], answer:2 },
-    { topic:"HTML & Web Content", q:"What is the difference between static and dynamic web content?", options:["Static content uses JavaScript; dynamic content does not","Static content is the same for every user; dynamic content is generated per request based on logic or data","Static content is stored in a database; dynamic content is stored in files","Static content uses CSS animations; dynamic content uses server-side scripts"], answer:1 },
-    { topic:"HTML & Web Content", q:"In CSS, what does the 'cascade' in Cascading Style Sheets refer to?", options:["Styles that flow from top to bottom in the HTML document","The waterfall layout algorithm used for positioning elements","The priority order used to determine which CSS rule applies when multiple rules target the same element","The way CSS animations play sequentially"], answer:2 },
-    { topic:"OS Layers", q:"Which layer of the operating system directly manages hardware resources such as CPU and memory?", options:["Shell","Application layer","Kernel","File system"], answer:2 },
-    { topic:"OS Layers", q:"What is a system call?", options:["A function call within a user-space application","A mechanism that allows user-space programs to request services from the operating system kernel","A network request from one computer to another","A scheduled task that runs at fixed intervals"], answer:1 },
-    { topic:"OS Layers", q:"Which of the following is a monolithic kernel characteristic?", options:["All OS services run in separate protected user-space processes","Only the scheduler runs in kernel space; everything else runs in user space","All OS services (drivers, file systems, scheduling) run in the same kernel address space","The kernel is split across multiple machines in a distributed system"], answer:2 },
-    { topic:"File Systems", q:"In a Unix/Linux filesystem, what does the inode store?", options:["The file name and file contents","Only the file's contents in contiguous blocks","Metadata about a file (permissions, owner, timestamps, data block pointers) but NOT the file name","The directory structure and all file names within it"], answer:2 },
-    { topic:"File Systems", q:"What is the Unix philosophy regarding 'everything is a file'?", options:["All programs must be stored as text files","Devices, sockets, pipes, and other I/O resources are exposed as file descriptors and accessed with file I/O operations","The filesystem must be FAT32 formatted","User data and OS data share the same directory"], answer:1 },
-    { topic:"File Systems", q:"Which Unix directory conventionally stores user home directories?", options:["/usr","/home","/var","/etc"], answer:1 },
-    { topic:"Process Management", q:"What distinguishes a process from a thread?", options:["Threads have their own memory address space; processes share one","Processes have their own memory address space; threads within a process share memory","Processes are managed by the CPU; threads are managed by the OS","Threads can only run on a single CPU core; processes can use multiple cores"], answer:1 },
-    { topic:"Process Management", q:"In CPU scheduling, which algorithm can lead to the 'convoy effect' where short processes wait behind a long one?", options:["Round Robin","Shortest Job First (SJF)","First-Come, First-Served (FCFS)","Priority Scheduling with preemption"], answer:2 },
-    { topic:"Process Management", q:"What is a zombie process?", options:["A process consuming 100% CPU without doing useful work","A process that has finished execution but still has an entry in the process table because its parent has not read its exit status","A process that has been paused by the scheduler indefinitely","A malicious process that replicates itself across the system"], answer:1 },
-    { topic:"Process Management", q:"Which CPU scheduling metric measures the total time from process submission to completion?", options:["Burst time","Waiting time","Turnaround time","Response time"], answer:2 },
-    { topic:"Memory Management", q:"What problem does virtual memory solve?", options:["It prevents the CPU from overheating by limiting memory-intensive operations","It allows processes to use more memory than physically available by using disk as an extension of RAM","It encrypts all data stored in RAM for security","It compresses memory to allow more data to fit in RAM"], answer:1 },
-    { topic:"Memory Management", q:"What is a page fault?", options:["A bug in a web page's HTML code","An error that occurs when a process tries to access a page not currently in physical memory","A failure when writing to a disk page","An overflow condition when a memory page is written beyond its boundary"], answer:1 },
-    { topic:"Concurrency & IPC", q:"Which IPC mechanism allows two processes to communicate through a shared kernel buffer in a producer-consumer fashion?", options:["Shared memory","Signal","Pipe","Socket"], answer:2 },
-    { topic:"Concurrency & IPC", q:"What is a race condition?", options:["A CPU performance benchmark test","A situation where two processes compete for CPU time and the slower one is starved","A bug where the outcome of a program depends on the unpredictable timing of events such as thread scheduling","A network condition where packets arrive out of order"], answer:2 },
-    { topic:"Concurrency & IPC", q:"A mutex (mutual exclusion lock) is used to:", options:["Terminate a thread that has been running too long","Ensure that only one thread at a time can execute a critical section","Share memory between processes on different machines","Schedule threads in round-robin order"], answer:1 },
-    { topic:"Security", q:"What does the 'Integrity' property of the CIA triad guarantee?", options:["Only authorized users can access the system","The system is available and operational when needed","Data has not been tampered with or altered by unauthorized parties","All network traffic is encrypted end-to-end"], answer:2 },
-    { topic:"Security", q:"A Denial-of-Service (DoS) attack primarily threatens which component of the CIA triad?", options:["Confidentiality","Integrity","Availability","Authentication"], answer:2 },
-    { topic:"Security", q:"Which security practice involves running a service with the minimum permissions required for it to function?", options:["Defense in depth","Principle of least privilege","Security through obscurity","Zero-trust networking"], answer:1 },
-    { topic:"CLI & Scripting", q:"In a Unix shell, what does the pipe operator '|' do?", options:["Redirects stdout to a file, overwriting it","Appends stdout to a file","Passes the stdout of one command as stdin to the next command","Runs two commands simultaneously in parallel"], answer:2 },
-    { topic:"CLI & Scripting", q:"What does the chmod 755 command set on a Unix file?", options:["Read/write/execute for owner; read/execute for group and others","Read/write for owner; read for group and others","Full permissions for everyone","No permissions for anyone"], answer:0 },
-    { topic:"Deadlocks", q:"Which of the four Coffman conditions is NOT required for a deadlock to occur?", options:["Mutual exclusion","Hold and wait","Preemption (resources can be forcibly taken)","Circular wait"], answer:2 },
-    { topic:"Deadlocks", q:"The Banker's Algorithm is used to:", options:["Recover from a deadlock by killing processes","Detect existing deadlocks in the system","Avoid deadlocks by simulating resource allocation before granting requests","Prevent deadlocks by enforcing strict resource ordering"], answer:2 },
-    { topic:"Resource Management", q:"Thrashing in an operating system occurs when:", options:["The CPU is overclocked beyond its rated speed","The system spends more time swapping pages in and out of memory than executing processes","Too many processes compete for the same I/O device","The network interface is saturated with traffic"], answer:1 },
-    { topic:"Resource Management", q:"What is the purpose of a semaphore in operating systems?", options:["To provide hardware-level encryption for memory regions","To control access to a shared resource by multiple processes using a counter-based signaling mechanism","To assign priority levels to processes for CPU scheduling","To manage disk I/O queues with elevator algorithms"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"Which HTTP status code indicates that the requested resource has been permanently moved to a new URL?", options:["200 OK","301 Moved Permanently","404 Not Found","500 Internal Server Error"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"What does HTTPS add on top of HTTP?", options:["Faster data transfer via compression only","Encryption and authentication via TLS/SSL","Additional HTTP methods like PATCH and OPTIONS","Support for persistent connections"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"medium", q:"Which HTTP method is considered idempotent AND safe?", options:["POST","PUT","DELETE","GET"], answer:3 },
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"In the client-server model, which party initiates the communication?", options:["The server","The client","The DNS resolver","The load balancer"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"What is the default port for HTTPS?", options:["80","8080","443","8443"], answer:2 },
+    { topic:"HTTP/HTTPS",        d:"medium", q:"Which HTTP header is used by the client to specify the type of content it can accept in a response?", options:["Content-Type","Accept","Authorization","Cache-Control"], answer:1 },
+    { topic:"Web Servers",       d:"medium", q:"Nginx is primarily known for which architectural advantage over traditional Apache?", options:["It uses a multi-process, one-process-per-connection model","It uses an event-driven, non-blocking I/O model that handles many connections efficiently","It natively executes PHP without any modules","It stores all content in memory for faster access"], answer:1 },
+    { topic:"Web Servers",       d:"hard",   q:"In the context of Node.js as a web server, what is the event loop?", options:["A CPU scheduling algorithm for Node processes","A mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded","A loop that periodically checks for new HTTP connections","A garbage collection cycle"], answer:1 },
+    { topic:"Web Servers",       d:"hard",   q:"Which of the following best describes a reverse proxy?", options:["A server that forwards client requests to the internet on behalf of the client","A server that sits in front of backend servers and forwards client requests to them","A DNS server that maps domain names to IP addresses","A firewall that blocks outbound traffic"], answer:1 },
+    { topic:"HTML & Web Content",d:"medium", q:"Which HTML element is used to define the primary navigation links of a page according to semantic HTML5?", options:["<div id='nav'>","<menu>","<nav>","<header>"], answer:2 },
+    { topic:"HTML & Web Content",d:"easy",   q:"What is the difference between static and dynamic web content?", options:["Static content uses JavaScript; dynamic content does not","Static content is the same for every user; dynamic content is generated per request based on logic or data","Static content is stored in a database; dynamic content is stored in files","Static content uses CSS animations; dynamic content uses server-side scripts"], answer:1 },
+    { topic:"HTML & Web Content",d:"medium", q:"In CSS, what does the 'cascade' in Cascading Style Sheets refer to?", options:["Styles that flow from top to bottom in the HTML document","The waterfall layout algorithm used for positioning elements","The priority order used to determine which CSS rule applies when multiple rules target the same element","The way CSS animations play sequentially"], answer:2 },
+    { topic:"OS Layers",         d:"easy",   q:"Which layer of the operating system directly manages hardware resources such as CPU and memory?", options:["Shell","Application layer","Kernel","File system"], answer:2 },
+    { topic:"OS Layers",         d:"medium", q:"What is a system call?", options:["A function call within a user-space application","A mechanism that allows user-space programs to request services from the operating system kernel","A network request from one computer to another","A scheduled task that runs at fixed intervals"], answer:1 },
+    { topic:"OS Layers",         d:"hard",   q:"Which of the following is a monolithic kernel characteristic?", options:["All OS services run in separate protected user-space processes","Only the scheduler runs in kernel space; everything else runs in user space","All OS services (drivers, file systems, scheduling) run in the same kernel address space","The kernel is split across multiple machines in a distributed system"], answer:2 },
+    { topic:"File Systems",      d:"hard",   q:"In a Unix/Linux filesystem, what does the inode store?", options:["The file name and file contents","Only the file's contents in contiguous blocks","Metadata about a file (permissions, owner, timestamps, data block pointers) but NOT the file name","The directory structure and all file names within it"], answer:2 },
+    { topic:"File Systems",      d:"medium", q:"What is the Unix philosophy regarding 'everything is a file'?", options:["All programs must be stored as text files","Devices, sockets, pipes, and other I/O resources are exposed as file descriptors and accessed with file I/O operations","The filesystem must be FAT32 formatted","User data and OS data share the same directory"], answer:1 },
+    { topic:"File Systems",      d:"easy",   q:"Which Unix directory conventionally stores user home directories?", options:["/usr","/home","/var","/etc"], answer:1 },
+    { topic:"Process Management",d:"medium", q:"What distinguishes a process from a thread?", options:["Threads have their own memory address space; processes share one","Processes have their own memory address space; threads within a process share memory","Processes are managed by the CPU; threads are managed by the OS","Threads can only run on a single CPU core; processes can use multiple cores"], answer:1 },
+    { topic:"Process Management",d:"medium", q:"In CPU scheduling, which algorithm can lead to the 'convoy effect' where short processes wait behind a long one?", options:["Round Robin","Shortest Job First (SJF)","First-Come, First-Served (FCFS)","Priority Scheduling with preemption"], answer:2 },
+    { topic:"Process Management",d:"easy",   q:"What is a zombie process?", options:["A process consuming 100% CPU without doing useful work","A process that has finished execution but still has an entry in the process table because its parent has not read its exit status","A process that has been paused by the scheduler indefinitely","A malicious process that replicates itself across the system"], answer:1 },
+    { topic:"Process Management",d:"medium", q:"Which CPU scheduling metric measures the total time from process submission to completion?", options:["Burst time","Waiting time","Turnaround time","Response time"], answer:2 },
+    { topic:"Memory Management", d:"easy",   q:"What problem does virtual memory solve?", options:["It prevents the CPU from overheating by limiting memory-intensive operations","It allows processes to use more memory than physically available by using disk as an extension of RAM","It encrypts all data stored in RAM for security","It compresses memory to allow more data to fit in RAM"], answer:1 },
+    { topic:"Memory Management", d:"medium", q:"What is a page fault?", options:["A bug in a web page's HTML code","An error that occurs when a process tries to access a page not currently in physical memory","A failure when writing to a disk page","An overflow condition when a memory page is written beyond its boundary"], answer:1 },
+    { topic:"Concurrency & IPC", d:"hard",   q:"Which IPC mechanism allows two processes to communicate through a shared kernel buffer in a producer-consumer fashion?", options:["Shared memory","Signal","Pipe","Socket"], answer:2 },
+    { topic:"Concurrency & IPC", d:"hard",   q:"What is a race condition?", options:["A CPU performance benchmark test","A situation where two processes compete for CPU time and the slower one is starved","A bug where the outcome of a program depends on the unpredictable timing of events such as thread scheduling","A network condition where packets arrive out of order"], answer:2 },
+    { topic:"Concurrency & IPC", d:"medium", q:"A mutex (mutual exclusion lock) is used to:", options:["Terminate a thread that has been running too long","Ensure that only one thread at a time can execute a critical section","Share memory between processes on different machines","Schedule threads in round-robin order"], answer:1 },
+    { topic:"Security",          d:"medium", q:"What does the 'Integrity' property of the CIA triad guarantee?", options:["Only authorized users can access the system","The system is available and operational when needed","Data has not been tampered with or altered by unauthorized parties","All network traffic is encrypted end-to-end"], answer:2 },
+    { topic:"Security",          d:"easy",   q:"A Denial-of-Service (DoS) attack primarily threatens which component of the CIA triad?", options:["Confidentiality","Integrity","Availability","Authentication"], answer:2 },
+    { topic:"Security",          d:"medium", q:"Which security practice involves running a service with the minimum permissions required for it to function?", options:["Defense in depth","Principle of least privilege","Security through obscurity","Zero-trust networking"], answer:1 },
+    { topic:"CLI & Scripting",   d:"easy",   q:"In a Unix shell, what does the pipe operator '|' do?", options:["Redirects stdout to a file, overwriting it","Appends stdout to a file","Passes the stdout of one command as stdin to the next command","Runs two commands simultaneously in parallel"], answer:2 },
+    { topic:"CLI & Scripting",   d:"hard",   q:"What does the chmod 755 command set on a Unix file?", options:["Read/write/execute for owner; read/execute for group and others","Read/write for owner; read for group and others","Full permissions for everyone","No permissions for anyone"], answer:0 },
+    { topic:"Deadlocks",         d:"hard",   q:"Which of the four Coffman conditions is NOT required for a deadlock to occur?", options:["Mutual exclusion","Hold and wait","Preemption (resources can be forcibly taken)","Circular wait"], answer:2 },
+    { topic:"Deadlocks",         d:"hard",   q:"The Banker's Algorithm is used to:", options:["Recover from a deadlock by killing processes","Detect existing deadlocks in the system","Avoid deadlocks by simulating resource allocation before granting requests","Prevent deadlocks by enforcing strict resource ordering"], answer:2 },
+    { topic:"Resource Management",d:"medium",q:"Thrashing in an operating system occurs when:", options:["The CPU is overclocked beyond its rated speed","The system spends more time swapping pages in and out of memory than executing processes","Too many processes compete for the same I/O device","The network interface is saturated with traffic"], answer:1 },
+    { topic:"Resource Management",d:"medium",q:"What is the purpose of a semaphore in operating systems?", options:["To provide hardware-level encryption for memory regions","To control access to a shared resource by multiple processes using a counter-based signaling mechanism","To assign priority levels to processes for CPU scheduling","To manage disk I/O queues with elevator algorithms"], answer:1 },
+
+    // ── Additional questions ──
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"What is the primary purpose of HTTP cookies?", options:["To speed up page rendering by caching CSS","To store small pieces of data on the client for session state, preferences, or tracking","To encrypt the HTTP request body","To authenticate the server's TLS certificate"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"easy",   q:"What does a 503 Service Unavailable response indicate?", options:["The requested resource does not exist","The client is not authorised to access the resource","The server is temporarily unable to handle the request, often due to overload or maintenance","The request method is not allowed on this resource"], answer:2 },
+    { topic:"HTTP/HTTPS",        d:"hard",   q:"What key improvement does HTTP/2 multiplexing provide over HTTP/1.1 keep-alive?", options:["It compresses response headers using HPACK for smaller payloads","It allows multiple requests and responses to be in-flight simultaneously over a single TCP connection, eliminating head-of-line blocking","It switches from TCP to UDP for faster transmission","It requires mutual TLS authentication for all connections"], answer:1 },
+    { topic:"HTTP/HTTPS",        d:"medium", q:"Which HTTP header does a browser send to tell the server what page it was on before making the current request?", options:["Origin","Referer","Host","Forwarded"], answer:1 },
+
+    { topic:"Web Servers",       d:"easy",   q:"What is the main purpose of a Content Delivery Network (CDN)?", options:["To compile server-side code faster","To distribute static content to servers geographically closer to users, reducing latency","To encrypt all traffic between the server and the database","To manage DNS records for a domain"], answer:1 },
+    { topic:"Web Servers",       d:"easy",   q:"What does load balancing achieve in a multi-server setup?", options:["It encrypts traffic between servers","It distributes incoming requests across multiple backend servers to prevent any single server from being overwhelmed","It caches database queries for faster reads","It compresses responses before sending them to clients"], answer:1 },
+    { topic:"Web Servers",       d:"medium", q:"What is the difference between a forward proxy and a reverse proxy?", options:["A forward proxy sits in front of clients and forwards their requests outbound; a reverse proxy sits in front of servers and forwards inbound client requests to them","A forward proxy handles HTTPS traffic; a reverse proxy handles HTTP traffic","A forward proxy caches responses; a reverse proxy only load balances","There is no difference — the terms are interchangeable"], answer:0 },
+
+    { topic:"HTML & Web Content",d:"easy",   q:"What is the purpose of the <!DOCTYPE html> declaration at the top of an HTML file?", options:["It imports external CSS and JavaScript files","It tells the browser to render the document in standards mode using HTML5","It defines the character encoding of the document","It sets the document's default language"], answer:1 },
+    { topic:"HTML & Web Content",d:"easy",   q:"What is the difference between localStorage and sessionStorage in the browser?", options:["localStorage is larger in capacity; sessionStorage is encrypted","localStorage persists data until explicitly cleared; sessionStorage is cleared when the browser tab is closed","localStorage is accessible cross-origin; sessionStorage is same-origin only","localStorage stores objects; sessionStorage stores only strings"], answer:1 },
+    { topic:"HTML & Web Content",d:"medium", q:"What problem does CORS (Cross-Origin Resource Sharing) solve?", options:["It prevents SQL injection by sanitising form inputs","It allows or restricts web pages from making requests to a different origin (domain/port/protocol) than the one that served the page","It encrypts AJAX requests sent from the browser","It enables HTTP/2 push for cross-origin assets"], answer:1 },
+    { topic:"HTML & Web Content",d:"hard",   q:"In the browser's rendering pipeline, when does 'reflow' (layout) get triggered?", options:["Any time a CSS colour or opacity property changes","When a JavaScript event listener is attached to a DOM node","When a change to the DOM affects the geometry or position of elements, causing the browser to recalculate layout","Only when the viewport is resized"], answer:2 },
+
+    { topic:"OS Layers",         d:"medium", q:"What is the key difference between kernel mode and user mode?", options:["Kernel mode runs on a faster CPU core reserved for the OS","In kernel mode the CPU can execute any instruction and access all memory; in user mode access to hardware and privileged instructions is restricted","Kernel mode uses virtual memory; user mode uses physical memory directly","User mode processes are scheduled with higher priority than kernel mode processes"], answer:1 },
+    { topic:"OS Layers",         d:"medium", q:"What is a hardware interrupt?", options:["A software bug that causes the OS to restart","A signal from a hardware device to the CPU indicating it needs attention, causing the CPU to pause the current process and run an interrupt handler","A scheduled OS task that runs at fixed time intervals","A mechanism for one process to signal another process"], answer:1 },
+
+    { topic:"File Systems",      d:"medium", q:"What is the purpose of journaling in a file system?", options:["To compress files before writing them to disk","To record pending changes in a log before committing them, so the file system can recover consistency after a crash","To encrypt file contents for security","To index file contents for faster search"], answer:1 },
+    { topic:"File Systems",      d:"hard",   q:"What is the difference between a hard link and a symbolic (soft) link in Unix?", options:["Hard links can span file systems; symbolic links cannot","A hard link is another directory entry pointing to the same inode; a symbolic link is a file that contains a path to the target and can span file systems","Hard links work only for directories; symbolic links work only for files","There is no functional difference — both are aliases for the same file"], answer:1 },
+
+    { topic:"Process Management",d:"easy",   q:"What is context switching?", options:["Swapping the entire process out to disk when memory is full","The OS saving the CPU state of the running process and restoring the saved state of the next process to run","Switching a process between user mode and kernel mode","Migrating a process from one CPU core to another"], answer:1 },
+    { topic:"Process Management",d:"medium", q:"What is the difference between preemptive and non-preemptive CPU scheduling?", options:["Preemptive scheduling only works on multi-core CPUs; non-preemptive works on single-core","In preemptive scheduling the OS can forcibly remove the CPU from a running process; in non-preemptive scheduling a process holds the CPU until it voluntarily yields or blocks","Non-preemptive scheduling uses a priority queue; preemptive uses round-robin only","Preemptive scheduling disables interrupts during execution"], answer:1 },
+    { topic:"Process Management",d:"hard",   q:"What does the fork() system call return in the parent process vs the child process?", options:["It returns 0 in both parent and child","It returns the child's PID in the parent and 0 in the child","It returns 0 in the parent and the child's PID in the child","It returns -1 in the child and the parent's PID in the parent"], answer:1 },
+
+    { topic:"Memory Management", d:"medium", q:"What is the difference between internal and external fragmentation?", options:["Internal fragmentation is caused by the OS; external fragmentation is caused by user programs","Internal fragmentation is wasted space inside an allocated memory block; external fragmentation is free memory that is too scattered in small chunks to satisfy a large allocation","Internal fragmentation occurs in virtual memory; external fragmentation occurs in physical memory only","External fragmentation only occurs with a fixed-size allocation scheme"], answer:1 },
+    { topic:"Memory Management", d:"hard",   q:"What is the Translation Lookaside Buffer (TLB)?", options:["A buffer that stores recently used disk blocks for fast re-access","A hardware cache for page table entries that speeds up virtual-to-physical address translation","A register that holds the base address of the current process's page table","A software cache that maps file paths to inode numbers"], answer:1 },
+
+    { topic:"Concurrency & IPC", d:"medium", q:"What is the key difference between a mutex and a counting semaphore?", options:["A mutex can be used between processes; a semaphore can only be used between threads","A mutex is a binary lock that must be released by the same thread that acquired it; a semaphore has an integer counter and can be signalled by any thread","Semaphores prevent priority inversion; mutexes do not","A mutex is a kernel object; a semaphore is a user-space construct"], answer:1 },
+    { topic:"Concurrency & IPC", d:"hard",   q:"What distinguishes a livelock from a deadlock?", options:["A livelock involves more than two processes; a deadlock involves exactly two","In a livelock processes are actively running and changing state in response to each other but making no useful progress; in a deadlock processes are blocked and waiting indefinitely","A livelock can only occur in user space; a deadlock can only occur in kernel space","Deadlocks are detectable; livelocks are not"], answer:1 },
+
+    { topic:"Security",          d:"easy",   q:"What is SQL injection?", options:["A technique to optimise slow SQL queries at runtime","An attack where malicious SQL code is inserted into an input field to manipulate or dump the database","A method of encrypting SQL traffic between the app server and the database","A database normalisation technique"], answer:1 },
+    { topic:"Security",          d:"medium", q:"What is the fundamental difference between symmetric and asymmetric encryption?", options:["Symmetric encryption is faster but less secure; asymmetric encryption is slower but uses longer keys","Symmetric encryption uses the same key to encrypt and decrypt; asymmetric encryption uses a public key to encrypt and a private key to decrypt","Symmetric encryption works on blocks of data; asymmetric encryption works on streams","Symmetric encryption requires a certificate authority; asymmetric encryption does not"], answer:1 },
+    { topic:"Security",          d:"hard",   q:"What makes a buffer overflow attack dangerous at the OS level?", options:["It crashes the web server process, causing a denial of service only","Writing past a buffer's boundary can overwrite the return address on the stack, allowing an attacker to redirect execution to arbitrary code","It causes kernel panic on all modern operating systems","It only works when ASLR is disabled and is otherwise harmless"], answer:1 },
+
+    { topic:"CLI & Scripting",   d:"easy",   q:"What does the grep command do?", options:["Renames files matching a pattern","Searches for lines matching a regular expression pattern within files or stdin","Lists all running processes on the system","Compresses files into an archive"], answer:1 },
+    { topic:"CLI & Scripting",   d:"medium", q:"What permissions does chmod 644 set on a file?", options:["Read/write/execute for owner; no permissions for group or others","Read/write for owner; read-only for group and others","Full permissions for everyone","Read-only for everyone"], answer:1 },
+
+    { topic:"Deadlocks",         d:"medium", q:"Which deadlock handling strategy simply ignores the possibility of deadlocks, relying on infrequent occurrence?", options:["Deadlock prevention","Deadlock avoidance","Deadlock detection and recovery","The ostrich algorithm"], answer:3 },
+
+    { topic:"Resource Management",d:"hard",  q:"What is the working set model and what problem does it address?", options:["A scheduling model that assigns CPU time proportional to process priority","A model that tracks the set of pages a process actively uses in a recent time window, used to determine how many page frames to allocate to prevent thrashing","A memory protection model that isolates each process's address space","A disk scheduling model that groups sequential I/O requests"], answer:1 },
   ];
 
   const TOPIC_PIPS = {
@@ -518,19 +681,22 @@
     return a;
   }
 
+  const QUIZ_SIZE = 10;
+
   function App() {
-    const [deck,     setDeck]     = React.useState(() => shuffle(questions).map(shuffleOptions));
+    const [deck,     setDeck]     = React.useState(() => shuffle(questions).slice(0, QUIZ_SIZE).map(shuffleOptions));
     const [current,  setCurrent]  = React.useState(0);
     const [selected, setSelected] = React.useState(null);
     const [score,    setScore]    = React.useState(0);
     const [done,     setDone]     = React.useState(false);
     const [answers,  setAnswers]  = React.useState([]);
-    const [key,      setKey]      = React.useState(0); // force re-mount for animation
+    const [key,      setKey]      = React.useState(0);
 
     const q     = deck[current];
     const total = deck.length;
     const pct   = Math.round((score / total) * 100);
     const pip   = TOPIC_PIPS[q?.topic] || "#555";
+    const numStr = String(current + 1).padStart(2, '0');
 
     function handleSelect(idx) {
       if (selected !== null) return;
@@ -548,7 +714,7 @@
     }
 
     function handleRestart() {
-      setDeck(shuffle(questions).map(shuffleOptions));
+      setDeck(shuffle(questions).slice(0, QUIZ_SIZE).map(shuffleOptions));
       setCurrent(0);
       setSelected(null);
       setScore(0);
@@ -556,8 +722,6 @@
       setAnswers([]);
       setKey(k => k + 1);
     }
-
-    const numStr = String(current + 1).padStart(2, '0');
 
     /* ── Results screen ── */
     if (done) {
@@ -588,7 +752,7 @@
             </div>
 
             <button className="btn-restart" onClick={handleRestart}>
-              Try Again
+              New 10 Questions
             </button>
           </div>
         </>
@@ -606,7 +770,7 @@
         <div className="main">
           {/* Progress */}
           <div className="progress-row">
-            <span className="progress-counter">{numStr} / {total}</span>
+            <span className="progress-counter">{numStr} / {String(total).padStart(2,'0')}</span>
             <div className="progress-track">
               <div className="progress-fill" style={{ width: `${(current / total) * 100}%` }} />
             </div>
@@ -635,9 +799,9 @@
 
               let state = undefined;
               if (revealed) {
-                if (isCorrect)              state = "correct";
-                else if (isSelected)        state = "wrong";
-                else                        state = "dim";
+                if (isCorrect)         state = "correct";
+                else if (isSelected)   state = "wrong";
+                else                   state = "dim";
               }
 
               return (
