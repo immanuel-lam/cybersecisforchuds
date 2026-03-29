@@ -601,13 +601,13 @@
             </div>
           </div>
 
-          <div key={key} className="question-block">
-            {/* Topic */}
-            <div className="topic-row">
-              <div className="topic-pip" style={{ background: pip }} />
-              <span className="topic-label">{q.topic}</span>
-            </div>
+          {/* Topic — outside question-block so ghost number can't overlap it */}
+          <div className="topic-row" key={key} style={{ animation: 'slideIn 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+            <div className="topic-pip" style={{ background: pip }} />
+            <span className="topic-label">{q.topic}</span>
+          </div>
 
+          <div className="question-block">
             {/* Ghost number */}
             <div className="question-num-bg" aria-hidden="true">{numStr}</div>
 
